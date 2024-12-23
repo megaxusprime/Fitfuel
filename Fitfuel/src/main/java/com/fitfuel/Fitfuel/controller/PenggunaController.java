@@ -3,10 +3,14 @@ package com.fitfuel.Fitfuel.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.fitfuel.Fitfuel.dto.LoginRequest;
+import com.fitfuel.Fitfuel.dto.RegisterRequest;
 import com.fitfuel.Fitfuel.model.Pengguna;
 import com.fitfuel.Fitfuel.model.ProfilPengguna;
 import com.fitfuel.Fitfuel.model.TimelinePengguna;
 import com.fitfuel.Fitfuel.repository.PenggunaRepository;
+import com.fitfuel.Fitfuel.service.PenggunaService;
+import com.fitfuel.Fitfuel.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/pengguna")
 public class PenggunaController {
+
+    @Autowired
+    private PenggunaService penggunaService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private PenggunaRepository penggunaRepository;
@@ -31,26 +41,39 @@ public class PenggunaController {
 
     // Register Endpoint
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody Pengguna pengguna) {
-        if (penggunaRepository.existsByUsername(pengguna.getUsername())) {
-            return ResponseEntity.badRequest().body("Username already exists!");
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        try {
+            System.out.println("Email: " + registerRequest.getEmail());
+            System.out.println("Password: " + registerRequest.getPassword());
+            penggunaService.tambahPengguna(registerRequest.getEmail(), registerRequest.getPassword());
+            return ResponseEntity.ok("Pengguna berhasil ditambahkan");
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace(); // Debugging stack trace
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Gagal menambahkan pengguna");
         }
-        penggunaRepository.save(pengguna);
-        return ResponseEntity.ok("User registered successfully!");
     }
+
 
     // Login Endpoint
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody Map<String, String> loginData) {
-        String username = loginData.get("username");
-        String password = loginData.get("password");
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println("Email diterima: " + loginRequest.getEmail());
+        System.out.println("Password diterima: " + loginRequest.getPassword());
 
-        Pengguna pengguna = penggunaRepository.findByUsername(username);
-        if (pengguna != null && pengguna.getPassword().equals(password)) {
-            return ResponseEntity.ok("Login successful!");
+        if (penggunaService.isValidUser(loginRequest.getEmail(), loginRequest.getPassword())) {
+            System.out.println("Login berhasil");
+            return ResponseEntity.ok(Map.of("message", "Login berhasil"));
+        } else {
+            System.out.println("Login gagal: Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid credentials"));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
     }
+
+
 
     @GetMapping
     public String defaultMapping() {
@@ -89,5 +112,21 @@ public class PenggunaController {
             return ResponseEntity.ok("Timeline berhasil ditambahkan!");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pengguna tidak ditemukan!");
+    }
+
+    public static class AuthenticationResponse {
+        private String jwt;
+
+        public AuthenticationResponse(String jwt) {
+            this.jwt = jwt;
+        }
+
+        public String getJwt() {
+            return jwt;
+        }
+
+        public void setJwt(String jwt) {
+            this.jwt = jwt;
+        }
     }
 }
