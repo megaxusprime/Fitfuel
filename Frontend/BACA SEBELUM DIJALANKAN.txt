@@ -1,0 +1,4 @@
+Jalankan
+npm install
+sebelum dijalankan
+(Wajib mempunyai Next JS versi terbaru)
