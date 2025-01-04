@@ -252,8 +252,13 @@ export default function Timeline() {
 
       if (response.ok) {
         alert('Postingan berhasil diperbarui');
+        // Update state posts setelah berhasil update
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post.id === editPost.id ? { ...post, content: editPost.content } : post
+            )
+        );
         setEditPost(null); // Reset editPost setelah update
-        fetchPosts(); // Refresh timeline setelah update
       } else {
         console.error('Gagal memperbarui postingan');
       }
