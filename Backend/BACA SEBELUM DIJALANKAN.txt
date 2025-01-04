@@ -1,0 +1,4 @@
+Jalankan
+mvn clean install
+sebelum dijalankan
+(Wajib mempunyai Apache Maven versi terbaru dan JDK versi terbaru)
