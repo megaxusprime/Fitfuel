@@ -1,4 +1,5 @@
 Jalankan
 npm install
 sebelum dijalankan
+npm run dev
 (Wajib mempunyai Apache Maven versi terbaru, JDK versi terbaru, dan Next JS)
