@@ -2,3 +2,4 @@ Jalankan
 mvn clean install
 sebelum dijalankan
 (Wajib mempunyai Apache Maven versi terbaru dan JDK versi terbaru)
+Jangan lupa mengubah nama, password, dan database sql pada \src\main\resources\application.properties
