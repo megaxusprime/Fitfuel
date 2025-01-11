@@ -1,6 +1,0 @@
-Jalankan
-mvn clean install
-sebelum dijalankan
-(Wajib mempunyai Apache Maven versi terbaru dan JDK versi terbaru)
-
-Ubah nama database, username, dan password phpMyAdmin sesuai dengan punya anda
